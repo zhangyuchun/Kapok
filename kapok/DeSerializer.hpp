@@ -1,7 +1,7 @@
 #pragma once
 #include "JsonUtil.hpp"
 #include "traits.hpp"
-#include <boost/lexical_cast.hpp>
+#include "lexical_cast.hpp"
 
 class DeSerializer : NonCopyable
 {
@@ -129,16 +129,16 @@ private:
 		ReadObject(reinterpret_cast<under_type&>(t), val, std::true_type{});
 	}
 
-	template <typename T, typename BeginObject>
-	auto ReadObject(T& t, Value& val, BeginObject) -> std::enable_if_t<is_optional<T>::value>
-	{
-		if (!val.IsNull())
-		{
-			std::remove_reference_t<decltype(*t)> tmp;
-			ReadObject(tmp, val, std::true_type{});
-			t = tmp;
-		}
-	}
+// 	template <typename T, typename BeginObject>
+// 	auto ReadObject(T& t, Value& val, BeginObject) -> std::enable_if_t<is_optional<T>::value>
+// 	{
+// 		if (!val.IsNull())
+// 		{
+// 			std::remove_reference_t<decltype(*t)> tmp;
+// 			ReadObject(tmp, val, std::true_type{});
+// 			t = tmp;
+// 		}
+// 	}
 
 	template<typename Tuple, typename BeginObject>
 	void ReadTuple(Tuple&& tp, Value& val, BeginObject bo)
@@ -257,7 +257,7 @@ private:
 			key_type key;
 			val_type value;
 
-			key = boost::lexical_cast<key_type>(it->name.GetString());
+			key = purecpp::lexical_cast<key_type>(it->name.GetString());
 
 			ReadObject(value, (Value&)it->value, std::true_type {});
 
@@ -277,11 +277,11 @@ private:
 		ReadObject(t, val, std::false_type{});
 	}
 
-	template<size_t N = 0, typename T, typename BeginObject>
-	auto ReadValue(T&& t, Value& val, BeginObject) -> std::enable_if_t<is_optional<T>::value>
-	{
-		ReadObject(t, val, std::true_type{});
-	}
+// 	template<size_t N = 0, typename T, typename BeginObject>
+// 	auto ReadValue(T&& t, Value& val, BeginObject) -> std::enable_if_t<is_optional<T>::value>
+// 	{
+// 		ReadObject(t, val, std::true_type{});
+// 	}
 
 	template <size_t N = 0, typename T, typename BeginObject>
 	auto ReadValue(T&& t, Value& val, BeginObject) -> std::enable_if_t<std::is_enum<
@@ -300,7 +300,7 @@ private:
 
 		assert(val.MemberCount() == 1);
 		auto itr = val.MemberBegin();
-		t.first = boost::lexical_cast<first_type>(itr->name.GetString());
+		t.first = purecpp::lexical_cast<first_type>(itr->name.GetString());
 		ReadObject(t.second, itr->value, bo);
 	}
 
@@ -319,11 +319,24 @@ private:
 	template<size_t N = 0, typename T>
 	auto ReadValue(T&& t, Value& val, std::false_type bo) -> std::enable_if_t<is_tuple<T>::value>
 	{
+// 		assert(!val.IsArray());
+// 		decltype(auto) tuple_elem = std::get<N>(t);
+// 		auto it = val.MemberBegin() + N;
+// 		assert(0 == std::strcmp(tuple_elem.first, it->name.GetString()));
+// 		ReadObject(tuple_elem, (Value&)(it->value), bo);
+
 		assert(!val.IsArray());
 		decltype(auto) tuple_elem = std::get<N>(t);
-		auto it = val.MemberBegin() + N;
-		assert(0 == std::strcmp(tuple_elem.first, it->name.GetString()));
-		ReadObject(tuple_elem, (Value&)(it->value), bo);
+		auto it = val.MemberBegin() ;
+		while (it != val.MemberEnd())
+		{
+			if (std::strcmp(it->name.GetString(), tuple_elem.first) == 0)
+			{
+				ReadObject(tuple_elem, (Value &)(it->value), bo);
+				break;
+			}
+			it++;
+		}
 	}
 
 	template<size_t N = 0, typename T>

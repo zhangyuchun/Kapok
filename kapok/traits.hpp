@@ -7,7 +7,7 @@
 #include <stack>
 #include <set>
 #include <unordered_set>
-#include <boost/optional.hpp>
+
 
 using namespace std;
 
@@ -136,7 +136,7 @@ struct is_specialization_of : std::false_type {};
 template <template <typename...> class Template, typename... Args>
 struct is_specialization_of<Template<Args...>, Template> : std::true_type{};
 
-template<typename T> struct is_optional : is_specialization_of<detail::decay_t<T>, boost::optional> {};
+//template<typename T> struct is_optional : is_specialization_of<detail::decay_t<T>, boost::optional> {};
 template<typename T> struct is_tuple : is_specialization_of<detail::decay_t<T>, std::tuple>{};
 template<typename T> struct is_queue : is_specialization_of<detail::decay_t<T>, std::queue>{};
 template<typename T> struct is_stack : is_specialization_of<detail::decay_t<T>, std::stack>{};
@@ -162,5 +162,5 @@ struct is_container_adapter : std::integral_constant<bool, is_queue<T>::value ||
 
 template<typename T>
 struct is_user_class : std::integral_constant<bool, is_normal_class<T>::value&&!is_container_adapter<T>::value
-	&&!is_stack<T>::value&&!is_container<T>::value&&!is_tuple<T>::value&&!is_pair<T>::value&&!is_optional<T>::value>
+	&&!is_stack<T>::value&&!is_container<T>::value&&!is_tuple<T>::value&&!is_pair<T>::value>
 {};

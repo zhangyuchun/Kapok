@@ -68,7 +68,10 @@ public:
 
 	void ReadValue(char*& t, Value& val)
 	{
-		t = (char*)val.GetString();
+		if (val.IsString())
+			t = (char*)val.GetString();
+		else
+			t = nullptr;
 	}
 
 	void WriteValue(const string& val)
@@ -78,7 +81,10 @@ public:
 
 	void ReadValue(string& t, Value& val)
 	{
-		t = val.GetString();
+		if (val.IsString())
+			t = val.GetString();
+		else
+			t = "";
 	}
 
 	void Parse(const char* json)
@@ -151,7 +157,10 @@ public:
 
 	void ReadValue(int& t, Value& val)
 	{
-		t = val.GetInt();
+		if (val.IsInt())
+			t = val.GetInt();
+		else
+			t = 0;
 	}
 
 	void WriteValue(char val)
@@ -161,7 +170,10 @@ public:
 
 	void ReadValue(char& t, Value& val)
 	{
-		t = (char)val.GetInt();
+		if (val.IsInt())
+			t = (char)val.GetInt();
+		else
+			t = 0;
 	}
 
 	void WriteValue(uint32_t val)
@@ -171,7 +183,10 @@ public:
 
 	void ReadValue(uint32_t& t, Value& val)
 	{
-		t = val.GetUint();
+		if (val.IsUint())
+			t = val.GetUint();
+		else
+			t = 0;
 	}
 
 	void WriteValue(int64_t val)
@@ -181,7 +196,10 @@ public:
 
 	void ReadValue(int64_t& t, Value& val)
 	{
-		t = val.GetInt64();
+		if (val.IsInt64())
+			t = val.GetInt64();
+		else
+			t = 0;
 	}
 
 	void WriteValue(uint64_t val)
@@ -191,7 +209,10 @@ public:
 
 	void ReadValue(uint64_t& t, Value& val)
 	{
-		t = val.GetUint64();
+		if (val.IsUint64())
+			t = val.GetUint64();
+		else
+			t = 0;
 	}
 
 	void WriteValue(double val)
@@ -201,7 +222,10 @@ public:
 
 	void ReadValue(double& t, Value& val)
 	{
-		t = val.GetDouble();
+		if (val.IsDouble())
+			t = val.GetDouble();
+		else
+			t = 0;
 	}
 
 	void WriteValue(float val)
@@ -211,7 +235,10 @@ public:
 
 	void ReadValue(float& t, Value& val)
 	{
-		t = static_cast<float>(val.GetDouble());
+		if (val.IsDouble())
+			t = static_cast<float>(val.GetDouble());
+		else
+			t = 0;
 	}
 
 	template<typename T>
@@ -235,7 +262,10 @@ public:
 
 	void ReadValue(bool& t, Value& val)
 	{
-		t = val.GetBool();
+		if (val.IsBool())
+			t = val.GetBool();
+		else
+			t = 0;
 	}
 
 	const char* GetJosnText()

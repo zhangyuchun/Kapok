@@ -9,7 +9,7 @@
 #include <unordered_set>
 #include <iostream>
 #include "kapok/Kapok.hpp"
-#include <boost/timer.hpp>
+
 #include "test_kapok.hpp"
 
 void test()
@@ -88,7 +88,7 @@ struct complex_t
 	std::map<std::string, person> c;
 	std::map<std::string, std::vector<person>> d;
 	std::vector<std::map<std::string, std::vector<person>>> e;
-	META(a, b, c, d, e);
+	META(a ,b, c, d, e);
 
 };
 
@@ -147,29 +147,7 @@ void test_new_meta()
 	dr.Deserialize(de_t, "test");
 }
 
-void test_performance()
-{
-	person p = { 20, "test" };
-	Serializer sr;
-	
-	const int LEN = 1000000;
-	boost::timer timer;
-	for (size_t i = 0; i < LEN; i++)
-	{
-		sr.Serialize(p, "test");
-	}
-	std::cout << timer.elapsed() << std::endl;
-	
-	DeSerializer dr;
-	dr.Parse(sr.GetString());
-	timer.restart();
-	for (size_t i = 0; i < LEN; i++)
-	{
-		person de_t;
-		dr.Deserialize(de_t, "test");
-	}
-	std::cout << timer.elapsed() << std::endl;
-}
+
 
 void test_tuple()
 {
@@ -281,45 +259,6 @@ void test_str()
 	std::cout << sr.GetString() << std::endl;
 }
 
-void test_optional()
-{
-	struct test_optional_struct
-	{
-		int a;
-		float b;
-		boost::optional<std::string> str;
-		META(a, b, str);
-	};
-
-	// init without init test_optional_struct::str
-	boost::optional<test_optional_struct> to_sr = test_optional_struct{ 1, 1.0f };
-	Serializer sr;
-	sr.Serialize(to_sr);
-	std::cout << sr.GetString() << std::endl;
-
-	DeSerializer ds;
-	ds.Parse(sr.GetString());
-	boost::optional<test_optional_struct> to_ds;
-	ds.Deserialize(to_ds);
-	bool test_pass =
-		to_ds->a == to_sr->a &&
-		to_ds->b == to_sr->b &&
-		to_ds->str == to_sr->str;
-
-	//full init
-	to_sr = test_optional_struct{ 3, 2.0f, "hello optional"s };
-	sr.Serialize(to_sr);
-	std::cout << sr.GetString() << std::endl;
-
-	ds.Parse(sr.GetString());
-	to_ds.reset();
-	ds.Deserialize(to_ds);
-	test_pass =
-		to_ds->a == to_sr->a &&
-		to_ds->b == to_sr->b &&
-		to_ds->str == to_sr->str;
-}
-
 enum class foo_enum
 {
 	hahahaha = 0,
@@ -379,6 +318,34 @@ void test_pair()
 	assert(p.first == r.first && p.second == r.second);
 }
 
+struct test_json
+{
+	int a;
+	std::string b;
+
+	META(a, b);
+};
+
+
+void test_myjosn()
+{
+	{
+		std::string str = "{\"b\":\"test\" , \"a\" :1}";
+		test_json json;
+		DeSerializer ds;
+		ds.Parse(str);
+		ds.Deserialize(json); 
+	}
+
+	{
+		std::string	str = "{\"b\":[],\"a\" : \"test\" }";
+		test_json json;
+		DeSerializer ds;
+		ds.Parse(str);
+		ds.Deserialize(json);
+	}
+}
+
 TEST_CASE(example)
 {
 	test_pair();
@@ -391,7 +358,7 @@ TEST_CASE(example)
 	test_array();
 	test_simple();
 	test_myperson();
-	test_performance();
+	
 	test_tuple();
 	test_recurse1();
 	test_recurse();
@@ -459,6 +426,8 @@ TEST_CASE(example)
 	test_map(map2);
 
 
-	test_optional();
+	
 	test_enum();
+
+	test_myjosn();
 }

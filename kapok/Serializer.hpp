@@ -6,7 +6,7 @@
 #include "traits.hpp"
 #include "Common.hpp"
 #include "JsonUtil.hpp"
-#include <boost/lexical_cast.hpp>
+#include "lexical_cast.hpp"
 
 class Serializer : NonCopyable
 {
@@ -92,18 +92,18 @@ private:
 		return false;
 	}
 
-	template <typename T, typename BeginObjec>
-	std::enable_if_t<is_optional<T>::value> WriteObject(T const& t, BeginObjec bj)
-	{
-		if (static_cast<bool>(t))
-		{
-			WriteObject(*t, bj);
-		}
-		else
-		{
-			m_jsutil.WriteNull();
-		}
-	}
+// 	template <typename T, typename BeginObjec>
+// 	std::enable_if_t<is_optional<T>::value> WriteObject(T const& t, BeginObjec bj)
+// 	{
+// 		if (static_cast<bool>(t))
+// 		{
+// 			WriteObject(*t, bj);
+// 		}
+// 		else
+// 		{
+// 			m_jsutil.WriteNull();
+// 		}
+// 	}
 
 	//template<typename T>
 	//typename std::enable_if<is_user_class<T>::value>::type WriteObject(T&& t)
@@ -179,7 +179,7 @@ private:
 		m_jsutil.StartObject();
 		for (auto const& pair : t)
 		{
-			WriteKV(boost::lexical_cast<std::string>(pair.first).c_str(), pair.second);
+			WriteKV(purecpp::lexical_cast<std::string>(pair.first).c_str(), pair.second);
 		}
 		m_jsutil.EndObject();
 	}
@@ -188,14 +188,14 @@ private:
 	typename std::enable_if<is_pair<T>::value>::type WriteObject(T const& t, std::true_type)
 	{
 		m_jsutil.StartObject();
-		WriteKV(boost::lexical_cast<std::string>(t.first).c_str(), t.second);
+		WriteKV(purecpp::lexical_cast<std::string>(t.first).c_str(), t.second);
 		m_jsutil.EndObject();
 	}
 
 	template<typename T>
 	typename std::enable_if<is_pair<T>::value>::type WriteObject(T const& t, std::false_type)
 	{
-		WriteKV(boost::lexical_cast<std::string>(t.first).c_str(), t.second);
+		WriteKV(purecpp::lexical_cast<std::string>(t.first).c_str(), t.second);
 	}
 
 	template<typename T, size_t N, typename BeginObject>
